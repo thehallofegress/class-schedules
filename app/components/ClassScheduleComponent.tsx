@@ -96,7 +96,7 @@ const ClassScheduleComponent = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const { isEditMode, setIsEditMode, isAuthenticated } = useEdit();
+  const { isEditMode, setIsEditMode } = useEdit();
 
   useEffect(() => {
     const fetchData = async () => {
