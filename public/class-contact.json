@@ -1,0 +1,14 @@
+{
+  "contact": {
+    "zoomInfo": {
+      "title": "网课信息",
+      "zoomId": "6509336693",
+      "zoomLink": "https://zoom.us/j/6509336693"
+    },
+    "teacherInfo": {
+      "title": "老师联系方式",
+      "name": "晓明老师",
+      "wechatId": "w126409"
+    }
+  }
+}
