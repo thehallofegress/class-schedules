@@ -16,6 +16,12 @@ export interface HourlyRate {
   rate: number;
 }
 
+export interface SpecialRate {
+  dropIn: number;
+  online: number;
+  trial: number;
+}
+
 export interface PaymentInfo {
   registration: {
     title: string;

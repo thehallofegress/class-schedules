@@ -1,5 +1,5 @@
 "use client"; 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ScheduleGrid from './ScheduleGrid';
 import FilterComponent from './FilterComponent';
 import LocationComponent from './LocationComponent';
@@ -67,6 +67,11 @@ const ClassScheduleComponent = () => {
   
   const [pricingData, setPricingData] = useState<PricingData>({
     hourlyRates: [],
+    specialRates: {
+      dropIn: 0,
+      online: 0,
+      trial: 0,
+    },
     paymentInfo: {
       registration: {
         title: "新生报名",
@@ -376,10 +381,10 @@ const ClassScheduleComponent = () => {
       />
     )}
     
-      <PasswordModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
-      />
+    <PasswordModal
+      isOpen={isPasswordModalOpen}
+      onClose={() => setIsPasswordModalOpen(false)}
+    />
     </div>
   );
 };

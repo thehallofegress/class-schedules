@@ -2,35 +2,7 @@
 import React, { useState } from 'react';
 import { PencilIcon, CheckIcon, XIcon, PlusCircle, Trash2 } from 'lucide-react';
 import { useEdit } from './EditContext';
-
-// Updated PricingData interface to include the new rate types
-interface PricingData {
-  hourlyRates: Array<{
-    hours: string;
-    rate: number;
-  }>;
-  specialRates: {
-    dropIn: number;
-    online: number;
-    trial: number;
-  };
-  paymentInfo: {
-    registration: {
-      title: string;
-      fee: string;
-      note: string;
-    };
-    paymentCycle: {
-      title: string;
-      offline: string;
-      online: string;
-    };
-    paymentMethods: {
-      title: string;
-      methods: string[];
-    };
-  };
-}
+import { PricingData } from './types';
 
 interface PricingComponentProps {
   initialData: PricingData;

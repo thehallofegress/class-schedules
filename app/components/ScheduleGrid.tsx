@@ -15,7 +15,7 @@ interface DaySchedule {
 
 interface ScheduleGridProps {
   weekDays: string[];
-  schedule?: DaySchedule;
+  schedule: DaySchedule;
   selectedClassType: string;
   selectedLocation: string;
   onSaveSchedule: (updatedSchedule: DaySchedule) => void;
