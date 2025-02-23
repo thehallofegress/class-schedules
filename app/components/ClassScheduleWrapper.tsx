@@ -1,3 +1,4 @@
+"use client";
 import ClassScheduleComponent from "./ClassScheduleComponent";
 import { EditProvider } from "./EditContext";
 

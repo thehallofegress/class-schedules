@@ -5,6 +5,7 @@ import path from "path";
 export async function POST(req: Request) {
   try {
     const { fileName, data } = await req.json();
+    console.log("")
     if (!fileName || !data) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
