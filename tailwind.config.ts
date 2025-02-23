@@ -13,6 +13,9 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        textPrimary: "var(--text-primary)", // Add primary text color
+        textSecondary: "var(--text-secondary)", // Add secondary text color
+        textMuted: "var(--text-muted)", // Muted text for less emphasis
       },
     },
   },
