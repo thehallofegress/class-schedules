@@ -1,12 +1,48 @@
 {
-  "locations": [
+  "hourlyRates": [
     {
-      "city": "San Jose",
-      "address": "3680 Stevens Creek Blvd, San Jose, CA, 95117"
+      "hours": "1-2",
+      "rate": 23
     },
     {
-      "city": "Mountain View",
-      "address": "295 Polaris Ave, Mountain View, CA, 94043"
+      "hours": "2.5",
+      "rate": 22
+    },
+    {
+      "hours": "3",
+      "rate": 21
+    },
+    {
+      "hours": "4",
+      "rate": 20
+    },
+    {
+      "hours": ">=5",
+      "rate": 19
     }
-  ]
+  ],
+  "specialRates": {
+    "dropIn": 27,
+    "online": 13,
+    "trial": 11
+  },
+  "paymentInfo": {
+    "registration": {
+      "title": "新生报名",
+      "fee": "50",
+      "note": "一次性"
+    },
+    "paymentCycle": {
+      "title": "付款周期",
+      "offline": "线下课：每两个月一付",
+      "online": "网课：每一个月一付"
+    },
+    "paymentMethods": {
+      "title": "支付方式",
+      "methods": [
+        "Cash",
+        "Check"
+      ]
+    }
+  }
 }

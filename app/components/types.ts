@@ -41,6 +41,7 @@ export interface PaymentInfo {
 
 export interface PricingData {
   hourlyRates: HourlyRate[];
+  specialRates: SpecialRate;
   paymentInfo: PaymentInfo;
 }
 
