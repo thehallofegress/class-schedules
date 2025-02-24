@@ -3,7 +3,7 @@
     "Monday": [],
     "Tuesday": [
       {
-        "time": "9:30 AM - 11:30 AM",
+        "time": "9:00 AM - 11:00 AM",
         "name": "基本功",
         "location": "San Jose"
       },
@@ -73,5 +73,6 @@
         "location": "Mountain View"
       }
     ]
-  }
+  },
+  "lastUpdated": "2025-02-24T07:30:30.744Z"
 }

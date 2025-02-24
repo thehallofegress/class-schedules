@@ -1,13 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import { PencilIcon, CheckIcon, XIcon } from "lucide-react";
+import { useState } from "react";
 import { useEdit } from "./EditContext";
+import { CheckIcon, PencilIcon, XIcon } from "lucide-react";
 
 interface EditableSectionProps {
   title: string;
-  onSave: () => void; // ✅ No need to pass data here, handled in parent
+  onSave: () => void; 
   children: React.ReactNode;
-  editForm: React.ReactNode;
+  editForm: (isEditing: boolean) => React.ReactNode; // ✅ Now takes isEditing as an argument
 }
 
 const EditableSection: React.FC<EditableSectionProps> = ({
@@ -21,13 +21,13 @@ const EditableSection: React.FC<EditableSectionProps> = ({
 
   const handleSave = async () => {
     try {
-      await onSave(); // ✅ Triggers `onSave` from parent component
+      await onSave();
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving data:", error);
     }
   };
-
+  
   return (
     <div className="relative">
       {isEditMode && isAuthenticated && !isEditing && (
@@ -51,14 +51,14 @@ const EditableSection: React.FC<EditableSectionProps> = ({
                 <XIcon size={16} />
               </button>
               <button
-                onClick={handleSave} // ✅ Calls `onSave`
+                onClick={handleSave}
                 className="p-1 text-green-600 hover:bg-green-50 rounded"
               >
                 <CheckIcon size={16} />
               </button>
             </div>
           </div>
-          {editForm}
+          {editForm(isEditing)} {/*Pass isEditing to editForm */}
         </div>
       ) : (
         children

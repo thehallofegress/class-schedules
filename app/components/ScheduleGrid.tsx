@@ -3,16 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 import { useEdit } from './EditContext';
-
-interface ClassSchedule {
-  time: string;
-  name: string;
-  location: string;
-}
-
-interface DaySchedule {
-  [key: string]: ClassSchedule[];
-}
+import { ClassSchedule, DaySchedule } from './types';
 
 interface ScheduleGridProps {
   weekDays: string[];
@@ -160,28 +151,28 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
 
   const handleSaveClass = (classData: EditingClass) => {
     const newSchedule = { ...localSchedule };
-    
+  
     if (!newSchedule[classData.day]) {
       newSchedule[classData.day] = [];
     }
-
-    const updatedClass = {
+  
+    const updatedClass: ClassSchedule = {
       time: classData.time,
       name: classData.name,
-      location: classData.location
+      location: classData.location,
     };
-
-    if (typeof classData.index === 'number') {
+  
+    if (typeof classData.index === "number") {
       newSchedule[classData.day][classData.index] = updatedClass;
     } else {
       newSchedule[classData.day].push(updatedClass);
     }
-
+  
     setLocalSchedule(newSchedule);
     onSaveSchedule(newSchedule);
     setEditingClass(null);
   };
-
+  
   const ClassCard: React.FC<{
     class_: ClassSchedule;
     day: string;

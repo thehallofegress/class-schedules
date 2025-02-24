@@ -1,3 +1,23 @@
+export interface ClassSchedule {
+  time: string;
+  name: string;
+  location: string;
+}
+
+export interface DaySchedule {
+  [key: string]: ClassSchedule[];
+}
+
+export interface ClassType {
+  id: string;
+  name: string;
+}
+
+export interface ScheduleData {
+  schedule: DaySchedule;
+  lastUpdated?: string; // Optional timestamp
+}
+
 export interface ContactInfo {
   zoomInfo: {
     title: string;
@@ -9,6 +29,7 @@ export interface ContactInfo {
     name: string;
     wechatId: string;
   };
+  lastUpdated?: string; // Optional timestamp
 }
 
 export interface HourlyRate {
@@ -43,13 +64,16 @@ export interface PricingData {
   hourlyRates: HourlyRate[];
   specialRates: SpecialRate;
   paymentInfo: PaymentInfo;
+  lastUpdated?: string; // Optional timestamp
 }
 
 export interface Location {
   city: string;
   address: string;
+  name?: string;
 }
 
 export interface LocationData {
   locations: Location[];
+  lastUpdated?: string; // Optional timestamp
 }
