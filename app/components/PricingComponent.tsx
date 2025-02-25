@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { PencilIcon, CheckIcon, XIcon, PlusCircle, Trash2 } from 'lucide-react';
 import { useEdit } from './EditContext';
-import { PricingData } from './types';
+import { PricingInfo } from './types';
 
 interface PricingComponentProps {
-  initialData: PricingData;
-  onSave: (data: PricingData) => Promise<void>;
+  initialData: PricingInfo;
+  onSave: (data: PricingInfo) => Promise<void>;
 }
 
 const PricingComponent: React.FC<PricingComponentProps> = ({ initialData, onSave }) => {

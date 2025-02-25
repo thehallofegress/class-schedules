@@ -14,6 +14,7 @@ export interface ClassType {
 }
 
 export interface ScheduleData {
+  id: string;
   schedule: DaySchedule;
   lastUpdated?: string; // Optional timestamp
 }
@@ -29,6 +30,11 @@ export interface ContactInfo {
     name: string;
     wechatId: string;
   };
+}
+
+export interface ContactData {
+  id: string;
+  contact: ContactInfo;
   lastUpdated?: string; // Optional timestamp
 }
 
@@ -60,20 +66,38 @@ export interface PaymentInfo {
   };
 }
 
-export interface PricingData {
+export interface PricingInfo{
   hourlyRates: HourlyRate[];
   specialRates: SpecialRate;
   paymentInfo: PaymentInfo;
+}
+
+export interface PricingData {
+  id: string;
+  pricing: PricingInfo;
   lastUpdated?: string; // Optional timestamp
 }
 
-export interface Location {
+export interface LocationInfo {
   city: string;
   address: string;
   name?: string;
 }
 
 export interface LocationData {
-  locations: Location[];
+  id: string;
+  locations: LocationInfo[];
   lastUpdated?: string; // Optional timestamp
 }
+
+export type MetadataType = {
+  latestFiles: Record<string, string>; // 🔹 Maps original file names to latest uploaded versions
+};
+
+// Table names for Supabase
+export const TABLES = {
+  schedule: "schedule",
+  contact: "contact",
+  pricing: "pricing",
+  locations: "locations",
+};

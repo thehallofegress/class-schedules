@@ -8,9 +8,9 @@ import { useEdit } from './EditContext';
 import { Settings } from 'lucide-react';
 import ContactComponent from './ContactComponent';
 import PricingComponent from './PricingComponent';
-import { ClassType, ContactInfo, DaySchedule, LocationData, PricingData, ScheduleData } from './types';
+import { ClassType, ContactInfo, DaySchedule, LocationInfo, PricingInfo, ScheduleData, TABLES } from './types';
 import { useClassSchedule } from '@/app/hooks/useClassSchedule';
-import { saveData } from '@/app/utils/saveData';
+import { saveDataWithUpsert } from '@/app/api/saveData';
 import {parseTime} from '@/app/utils/handleTime';
 
 const extractClassTypes = (schedule?: DaySchedule) => {
@@ -31,8 +31,7 @@ const extractClassTypes = (schedule?: DaySchedule) => {
 
 const ClassScheduleComponent = () => {
   const {
-    schedule,
-    scheduleLastUpdated,
+    scheduleData,
     contactData,
     pricingData,
     locationData,
@@ -44,6 +43,7 @@ const ClassScheduleComponent = () => {
     setContactLastUpdated,
     setPricingLastUpdated,
     setLocationLastUpdated,
+    fetchData,
     isLoading,
     error,
   } = useClassSchedule();
@@ -58,11 +58,11 @@ const ClassScheduleComponent = () => {
   const { isEditMode, setIsEditMode } = useEdit();
 
   useEffect(() => {
-    setClassTypes(extractClassTypes(schedule));
-  }, [schedule]);
+    setClassTypes(extractClassTypes(scheduleData?.schedule));
+  }, [scheduleData]);
 
-  const formattedLastUpdated = scheduleLastUpdated
-  ? new Date(scheduleLastUpdated).toLocaleDateString() : "未更新";
+  const formattedLastUpdated = scheduleData?.lastUpdated
+  ? new Date(scheduleData?.lastUpdated).toLocaleDateString() : "未更新";
 
   const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -117,38 +117,83 @@ const ClassScheduleComponent = () => {
       );
     
       const updatedSchedule: ScheduleData = {
+        id: scheduleData.id,
         schedule: sortedSchedule,
         lastUpdated: new Date().toISOString(),
       };
     
-      await saveData("class-schedule.json", updatedSchedule, setScheduleData, setScheduleLastUpdated);
+      await saveDataWithUpsert(
+        TABLES.schedule, 
+        updatedSchedule, 
+        setScheduleData, 
+        setScheduleLastUpdated,
+        "id",
+        () => {
+          console.log("Schedule saved successfully");
+          fetchData(true);
+        }
+      );
     };
     
     const saveContactData = async (newContactData: ContactInfo) => {
-      const updatedContact = {
-        ...newContactData, // Spread the existing fields
-        lastUpdated: new Date().toISOString(), // ✅ Add lastUpdated separately
+      const updatedContactData = {
+        id: contactData.id,
+        contact: newContactData,
+        lastUpdated: new Date().toISOString(),
       };
     
-      await saveData("class-contact.json", updatedContact, setContactData, setContactLastUpdated);
+      await saveDataWithUpsert(
+        TABLES.contact, 
+        updatedContactData, 
+        setContactData, 
+        setContactLastUpdated,
+        "id",
+        () => {
+          console.log("Contact info saved successfully");
+          fetchData(true);
+        }
+      );
     };
 
-    const savePricingData = async (newPricingData: PricingData) => {
+    const savePricingData = async (newPricingData: PricingInfo) => {
       const updatedPricing = {
-        ...newPricingData,
+        id: pricingData.id,
+        pricing: newPricingData,
         lastUpdated: new Date().toISOString(),
       };
-      await saveData("class-pricing.json", updatedPricing, setPricingData, setPricingLastUpdated);
+
+      await saveDataWithUpsert(
+        TABLES.pricing, 
+        updatedPricing, 
+        setPricingData, 
+        setPricingLastUpdated,
+        "id",
+        () => {
+          console.log("Pricing info saved successfully");
+          fetchData(true);
+        }
+      );
     };
     
-    const saveLocationData = async (newLocationData: LocationData) => {
+    const saveLocationData = async (newLocationData: LocationInfo[]) => {
       const updatedLocation = {
-        ...newLocationData,
+        id: locationData.id,
+        locations: newLocationData,
         lastUpdated: new Date().toISOString(),
       };
-      await saveData("class-locations.json", updatedLocation, setLocationData, setLocationLastUpdated);
+
+      await saveDataWithUpsert(
+        TABLES.locations, 
+        updatedLocation, 
+        setLocationData, 
+        setLocationLastUpdated,
+        "id",
+        () => {
+          console.log("Location info saved successfully");
+          fetchData(true);
+        }
+      );
     };
-    
     
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
@@ -196,7 +241,7 @@ const ClassScheduleComponent = () => {
           {/* Schedule Grid */}
           <ScheduleGrid 
             weekDays={weekDays}
-            schedule={schedule}
+            schedule={scheduleData.schedule}
             selectedClassType={selectedClassType}
             selectedLocation={selectedLocation}
             onSaveSchedule={saveScheduleData}
@@ -215,21 +260,21 @@ const ClassScheduleComponent = () => {
 
       {activeTab === 'location' && (
         <LocationComponent 
-          initialData={locationData}
+          initialData={locationData.locations}
           onSave={saveLocationData}
         />
       )}
 
     {activeTab === 'contact' && (
       <ContactComponent 
-        initialData={contactData}
+        initialData={contactData.contact}
         onSave={saveContactData}
       />
     )}
 
     {activeTab === 'pricing' && (
       <PricingComponent
-        initialData={pricingData}
+        initialData={pricingData.pricing}
         onSave={savePricingData}
       />
     )}

@@ -116,6 +116,10 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     setLocalSchedule(schedule);
   }, [schedule]);
 
+  if (!schedule) {
+    return
+  }
+  
   const filteredSchedule = (day: string): ClassSchedule[] => {
     return (localSchedule[day] || []).filter(class_ => {
       const matchesType = selectedClassType === 'all' || class_.name.includes(selectedClassType);

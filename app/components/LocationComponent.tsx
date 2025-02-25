@@ -1,29 +1,29 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import EditableSection from "./EditableSection";
-import { Location, LocationData } from "./types";
+import { LocationInfo} from "./types";
 import { Trash2 } from "lucide-react";
-import { useEdit } from "./EditContext"; // ✅ Import edit mode context
+import { useEdit } from "./EditContext";
 
 interface LocationComponentProps {
-  initialData: LocationData;
-  onSave: (data: LocationData) => Promise<void>;
+  initialData: LocationInfo[];
+  onSave: (data: LocationInfo[]) => Promise<void>;
 }
 
 const getGoogleMapsUrl = (address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
 const LocationComponent: React.FC<LocationComponentProps> = ({ initialData, onSave }) => {
-  const [locations, setLocations] = useState<Location[]>(initialData.locations || []);
+  const [locations, setLocations] = useState<LocationInfo[]>(initialData || []);
   const { isEditMode } = useEdit(); // Get edit mode state
 
   useEffect(() => {
-    setLocations(initialData.locations);
+    setLocations(initialData);
   }, [initialData]);
 
   const handleSave = async () => {
     try {
-      await onSave({ locations });
+      await onSave(locations);
     } catch (error) {
       console.error("Error saving locations:", error);
     }
