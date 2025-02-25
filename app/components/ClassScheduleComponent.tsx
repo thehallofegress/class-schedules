@@ -1,5 +1,5 @@
-"use client"; 
-import React, { useEffect, useState} from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import ScheduleGrid from './ScheduleGrid';
 import FilterComponent from './FilterComponent';
 import LocationComponent from './LocationComponent';
@@ -11,7 +11,11 @@ import PricingComponent from './PricingComponent';
 import { ClassType, ContactInfo, DaySchedule, LocationInfo, PricingInfo, ScheduleData, TABLES } from './types';
 import { useClassSchedule } from '@/app/hooks/useClassSchedule';
 import { saveDataWithUpsert } from '@/app/api/saveData';
-import {parseTime} from '@/app/utils/handleTime';
+import { parseTime } from '@/app/utils/handleTime';
+import AnnouncementsContainer from './AnnouncementsContainer';
+import AnnouncementsManagement from './AnnouncementsManagement';
+import TabButton, { TabEnum } from './TabButton';
+
 
 const extractClassTypes = (schedule?: DaySchedule) => {
   if (!schedule) return [];
@@ -50,7 +54,7 @@ const ClassScheduleComponent = () => {
 
   const [selectedClassType, setSelectedClassType] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState('schedule');
+  const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.Schedule);
 
   const [classTypes, setClassTypes] = useState<ClassType[]>([]);
 
@@ -61,147 +65,141 @@ const ClassScheduleComponent = () => {
     setClassTypes(extractClassTypes(scheduleData?.schedule));
   }, [scheduleData]);
 
+  const handleExit = () => {
+    setIsEditMode(false); // Set edit mode to false, assuming exit means leaving edit mode
+  
+    if (activeTab === TabEnum.Announcement) {
+      setActiveTab(TabEnum.Schedule);
+    }
+  };
+
   const formattedLastUpdated = scheduleData?.lastUpdated
-  ? new Date(scheduleData?.lastUpdated).toLocaleDateString() : "未更新";
+    ? new Date(scheduleData?.lastUpdated).toLocaleDateString() : "未更新";
 
   const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-  const TabButton = ({ id, label, icon }: { id: string; label: string; icon?: React.ReactNode }) => (
-    <button
-      onClick={() => setActiveTab(id)}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-        activeTab === id ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-
-    // Show loading state
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading schedule...</p>
-          </div>
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading schedule...</p>
         </div>
-      );
-    }
-  
-    // Show error state
-    if (error) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center p-6 bg-red-50 rounded-lg">
-            <p className="text-red-600 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Retry
-            </button>
-          </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-red-50 rounded-lg">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    const saveScheduleData = async (newSchedule: DaySchedule) => {
-      // Sort each day's schedule before saving
-      const sortedSchedule = Object.fromEntries(
-        Object.entries(newSchedule).map(([day, classes]) => [
-          day,
-          [...classes].sort((a, b) => parseTime(a.time) - parseTime(b.time)),
-        ])
-      );
-    
-      const updatedSchedule: ScheduleData = {
-        id: scheduleData.id,
-        schedule: sortedSchedule,
-        lastUpdated: new Date().toISOString(),
-      };
-    
-      await saveDataWithUpsert(
-        TABLES.schedule, 
-        updatedSchedule, 
-        setScheduleData, 
-        setScheduleLastUpdated,
-        "id",
-        () => {
-          console.log("Schedule saved successfully");
-          fetchData(true);
-        }
-      );
-    };
-    
-    const saveContactData = async (newContactData: ContactInfo) => {
-      const updatedContactData = {
-        id: contactData.id,
-        contact: newContactData,
-        lastUpdated: new Date().toISOString(),
-      };
-    
-      await saveDataWithUpsert(
-        TABLES.contact, 
-        updatedContactData, 
-        setContactData, 
-        setContactLastUpdated,
-        "id",
-        () => {
-          console.log("Contact info saved successfully");
-          fetchData(true);
-        }
-      );
+  const saveScheduleData = async (newSchedule: DaySchedule) => {
+    // Sort each day's schedule before saving
+    const sortedSchedule = Object.fromEntries(
+      Object.entries(newSchedule).map(([day, classes]) => [
+        day,
+        [...classes].sort((a, b) => parseTime(a.time) - parseTime(b.time)),
+      ])
+    );
+
+    const updatedSchedule: ScheduleData = {
+      id: scheduleData.id,
+      schedule: sortedSchedule,
+      lastUpdated: new Date().toISOString(),
     };
 
-    const savePricingData = async (newPricingData: PricingInfo) => {
-      const updatedPricing = {
-        id: pricingData.id,
-        pricing: newPricingData,
-        lastUpdated: new Date().toISOString(),
-      };
+    await saveDataWithUpsert(
+      TABLES.schedule,
+      updatedSchedule,
+      setScheduleData,
+      setScheduleLastUpdated,
+      "id",
+      () => {
+        console.log("Schedule saved successfully");
+        fetchData(true);
+      }
+    );
+  };
 
-      await saveDataWithUpsert(
-        TABLES.pricing, 
-        updatedPricing, 
-        setPricingData, 
-        setPricingLastUpdated,
-        "id",
-        () => {
-          console.log("Pricing info saved successfully");
-          fetchData(true);
-        }
-      );
+  const saveContactData = async (newContactData: ContactInfo) => {
+    const updatedContactData = {
+      id: contactData.id,
+      contact: newContactData,
+      lastUpdated: new Date().toISOString(),
     };
-    
-    const saveLocationData = async (newLocationData: LocationInfo[]) => {
-      const updatedLocation = {
-        id: locationData.id,
-        locations: newLocationData,
-        lastUpdated: new Date().toISOString(),
-      };
 
-      await saveDataWithUpsert(
-        TABLES.locations, 
-        updatedLocation, 
-        setLocationData, 
-        setLocationLastUpdated,
-        "id",
-        () => {
-          console.log("Location info saved successfully");
-          fetchData(true);
-        }
-      );
+    await saveDataWithUpsert(
+      TABLES.contact,
+      updatedContactData,
+      setContactData,
+      setContactLastUpdated,
+      "id",
+      () => {
+        console.log("Contact info saved successfully");
+        fetchData(true);
+      }
+    );
+  };
+
+  const savePricingData = async (newPricingData: PricingInfo) => {
+    const updatedPricing = {
+      id: pricingData.id,
+      pricing: newPricingData,
+      lastUpdated: new Date().toISOString(),
     };
-    
+
+    await saveDataWithUpsert(
+      TABLES.pricing,
+      updatedPricing,
+      setPricingData,
+      setPricingLastUpdated,
+      "id",
+      () => {
+        console.log("Pricing info saved successfully");
+        fetchData(true);
+      }
+    );
+  };
+
+  const saveLocationData = async (newLocationData: LocationInfo[]) => {
+    const updatedLocation = {
+      id: locationData.id,
+      locations: newLocationData,
+      lastUpdated: new Date().toISOString(),
+    };
+
+    await saveDataWithUpsert(
+      TABLES.locations,
+      updatedLocation,
+      setLocationData,
+      setLocationLastUpdated,
+      "id",
+      () => {
+        console.log("Location info saved successfully");
+        fetchData(true);
+      }
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
       <header className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">成人班2025年课程表</h1>
         <p className="text-gray-600">授课老师: 王晓明</p>
         <p className="text-gray-500 text-sm"> {formattedLastUpdated} 更新版</p>
-
         {!isEditMode && (
           <button
             onClick={() => setIsPasswordModalOpen(true)}
@@ -210,25 +208,27 @@ const ClassScheduleComponent = () => {
             <Settings size={20} />
           </button>
         )}
-                {isEditMode && (
+        {isEditMode && (
           <button
-            onClick={() => setIsEditMode(false)}
+            onClick={handleExit}
             className="absolute top-0 right-0 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            Exit Edit Mode
+            退出编辑模式
           </button>
         )}
       </header>
+      <AnnouncementsContainer />
 
       {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <TabButton id="schedule" label="📅 课程表" />
-        <TabButton id="location" label="📍 地点信息" />
-        <TabButton id="contact" label="💬 联系方式"/>
-        <TabButton id="pricing" label="💰 收费信息" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-6">
+        <TabButton id={TabEnum.Schedule} label="📅 课程表" activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabButton id={TabEnum.Locations} label="📍 地点信息" activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabButton id={TabEnum.Contact} label="💬 联系方式" activeTab={activeTab} setActiveTab={setActiveTab} />
+        <TabButton id={TabEnum.Pricing} label="💰 收费信息" activeTab={activeTab} setActiveTab={setActiveTab} />
+        {isEditMode && <TabButton id={TabEnum.Announcement} label="📢 通知管理" activeTab={activeTab} setActiveTab={setActiveTab} />}
       </div>
 
-      {activeTab === 'schedule' && (
+      {activeTab === TabEnum.Schedule && (
         <>
           {/* Filters */}
           <FilterComponent
@@ -239,7 +239,7 @@ const ClassScheduleComponent = () => {
             classTypes={classTypes}
           />
           {/* Schedule Grid */}
-          <ScheduleGrid 
+          <ScheduleGrid
             weekDays={weekDays}
             schedule={scheduleData.schedule}
             selectedClassType={selectedClassType}
@@ -248,7 +248,7 @@ const ClassScheduleComponent = () => {
           />
           <div className="mt-8 bg-yellow-50 p-4 rounded-lg">
             <h2 className="font-bold mb-2 flex items-center gap-2">
-            💬 报课注意事项
+              💬 报课注意事项
             </h2>
             <ol className="list-decimal pl-5 space-y-1 text-left">
               <li>周二上午、周四、周日基本功课适合包含零基础在内的所有同学，周五、周六基本功课更适合有一定基础的同学</li>
@@ -258,31 +258,35 @@ const ClassScheduleComponent = () => {
         </>
       )}
 
-      {activeTab === 'location' && (
-        <LocationComponent 
+      {activeTab === TabEnum.Locations && (
+        <LocationComponent
           initialData={locationData.locations}
           onSave={saveLocationData}
         />
       )}
 
-    {activeTab === 'contact' && (
-      <ContactComponent 
-        initialData={contactData.contact}
-        onSave={saveContactData}
-      />
-    )}
+      {activeTab === TabEnum.Contact && (
+        <ContactComponent
+          initialData={contactData.contact}
+          onSave={saveContactData}
+        />
+      )}
 
-    {activeTab === 'pricing' && (
-      <PricingComponent
-        initialData={pricingData.pricing}
-        onSave={savePricingData}
+      {activeTab === TabEnum.Pricing && (
+        <PricingComponent
+          initialData={pricingData.pricing}
+          onSave={savePricingData}
+        />
+      )}
+
+      {isEditMode && activeTab === TabEnum.Announcement && (
+        <AnnouncementsManagement />
+      )}
+
+      <PasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
       />
-    )}
-    
-    <PasswordModal
-      isOpen={isPasswordModalOpen}
-      onClose={() => setIsPasswordModalOpen(false)}
-    />
     </div>
   );
 };

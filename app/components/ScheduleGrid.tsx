@@ -1,9 +1,9 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 import { useEdit } from './EditContext';
 import { ClassSchedule, DaySchedule } from './types';
+import { useMediaQuery } from '@/app/hooks/useMediaQuery';
 
 interface ScheduleGridProps {
   weekDays: string[];
@@ -17,22 +17,6 @@ interface EditingClass extends ClassSchedule {
   day: string;
   index?: number;
 }
-
-const useMediaQuery = (query: string): boolean => {
-  const [matches, setMatches] = useState<boolean>(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    setMatches(media.matches);
-
-    const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
-    media.addEventListener('change', listener);
-
-    return () => media.removeEventListener('change', listener);
-  }, [query]);
-
-  return matches;
-};
 
 const ClassEditForm: React.FC<{
   editingClass: EditingClass;

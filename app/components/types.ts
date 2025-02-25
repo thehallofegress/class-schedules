@@ -101,3 +101,12 @@ export const TABLES = {
   pricing: "pricing",
   locations: "locations",
 };
+
+export interface Announcement {
+  id: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  created_at: string;
+  expires_at: string;
+  is_active: boolean;
+}
