@@ -472,6 +472,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     index: number;
   }> = ({ class_, day, index }) => {
     const duration = calculateDuration(class_.time);
+    const isDesktop = useMediaQuery('(min-width: 768px)');
     
     return (
       <div
@@ -481,19 +482,41 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
             : 'bg-blue-50 border border-blue-100'
         } p-3 rounded-lg transition-all hover:shadow-md`}
       >
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-sm font-medium">{class_.time}</span>
-          {duration && (
-            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center gap-1">
-              <Clock size={12} />
-              {duration}
-            </span>
-          )}
-        </div>
-        <div className="text-sm font-medium mb-2">{class_.name}</div>
-        <div className="flex items-center gap-1 text-xs text-gray-600">
-          <span>📍{class_.location}</span>
-        </div>
+        {isDesktop ? (
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">{class_.time}</span>
+            </div>
+            
+            {duration && (
+              <span className="text-xs text-gray-600 flex items-center gap-1">
+                <Clock size={10} />
+                {duration}
+              </span>
+            )}
+            <div className="text-sm font-medium mb-2">{class_.name}</div>
+            <div className="flex items-center gap-1 text-xs text-gray-600">
+              <span>📍{class_.location}</span>
+            </div>
+          </>
+        ) : (
+          // Mobile layout with duration as a pill next to time
+          <>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-sm font-medium">{class_.time}</span>
+              {duration && (
+                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Clock size={12} />
+                  {duration}
+                </span>
+              )}
+            </div>
+            <div className="text-sm font-medium mb-2">{class_.name}</div>
+            <div className="flex items-center gap-1 text-xs text-gray-600">
+              <span>📍{class_.location}</span>
+            </div>
+          </>
+        )}
         
         {isEditMode && (
           <div className="absolute top-2 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow-sm p-1">
