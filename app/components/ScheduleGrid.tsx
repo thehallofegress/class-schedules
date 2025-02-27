@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit2, Trash2, Clock } from 'lucide-react';
 import { useEdit } from './EditContext';
 import { ClassSchedule, DaySchedule } from './types';
 import { useMediaQuery } from '@/app/hooks/useMediaQuery';
@@ -16,42 +16,334 @@ interface ScheduleGridProps {
 interface EditingClass extends ClassSchedule {
   day: string;
   index?: number;
+  duration?: string;
 }
+
+// Function to calculate class duration from time string
+const calculateDuration = (timeStr: string): string => {
+  try {
+    // Extract start and end times from format like "9:30 AM - 11:30 AM"
+    const times = timeStr.split('-').map(t => t.trim());
+    
+    if (times.length !== 2) return "";
+    
+    // Parse the time strings (handle both 12-hour and 24-hour formats)
+    const parseTimeString = (timeString: string): Date => {
+      const today = new Date();
+      let timeDate = new Date(today.toDateString());
+      
+      // Check if the time is in 12-hour format with AM/PM
+      if (timeString.includes('AM') || timeString.includes('PM')) {
+        try {
+          timeDate = new Date(today.toDateString() + ' ' + timeString);
+        } catch (e) {
+          console.error("Error parsing 12-hour time format:", e);
+        }
+      } else {
+        // Assume 24-hour format (HH:MM)
+        try {
+          const [hours, minutes] = timeString.split(':').map(Number);
+          timeDate.setHours(hours, minutes);
+        } catch (e) {
+          console.error("Error parsing 24-hour time format:", e);
+        }
+      }
+      
+      return timeDate;
+    };
+    
+    const startTime = parseTimeString(times[0]);
+    const endTime = parseTimeString(times[1]);
+    
+    // Handle cases where end time is the next day
+    if (endTime < startTime) {
+      endTime.setDate(endTime.getDate() + 1);
+    }
+    
+    // Calculate duration in minutes
+    const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+    
+    // Format the duration
+    if (durationMinutes >= 60) {
+      const hours = Math.floor(durationMinutes / 60);
+      const minutes = durationMinutes % 60;
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+    } else {
+      return `${durationMinutes}m`;
+    }
+  } catch (e) {
+    console.error("Error calculating duration:", e);
+    return "";
+  }
+};
 
 const ClassEditForm: React.FC<{
   editingClass: EditingClass;
   onSave: (classData: EditingClass) => void;
   onCancel: () => void;
-}> = ({ editingClass, onSave, onCancel }) => {
+  existingClassNames: string[];
+}> = ({ editingClass, onSave, onCancel, existingClassNames }) => {
+  const isMobile = useMediaQuery('(max-width: 640px)');
   const [formData, setFormData] = useState(editingClass);
+  // Parse initial time values if they exist
+  const parseInitialTime = (timeString: string, isStart: boolean) => {
+    if (!timeString) return { hour: isStart ? '9' : '10', minute: '00', period: isStart ? 'AM' : 'AM' };
+    
+    try {
+      const parts = timeString.split('-');
+      const timePart = isStart ? parts[0].trim() : parts[1]?.trim();
+      
+      if (!timePart) return { hour: isStart ? '9' : '10', minute: '00', period: isStart ? 'AM' : 'AM' };
+      
+      // Check for AM/PM format
+      const hasPeriod = timePart.includes('AM') || timePart.includes('PM');
+      const period = timePart.includes('PM') ? 'PM' : 'AM';
+      
+      // Extract hours and minutes
+      let [hourMin] = timePart.split(' ');
+      if (hasPeriod) {
+        [hourMin] = timePart.split(' ');
+      }
+      
+      const [hour, minute] = hourMin.split(':');
+      
+      return {
+        hour: hour || (isStart ? '9' : '10'),
+        minute: minute || '00',
+        period: period
+      };
+    } catch (e) {
+      console.error("Error parsing time:", e);
+      return { hour: isStart ? '9' : '10', minute: '00', period: isStart ? 'AM' : 'AM' };
+    }
+  };
+
+  const initialStart = parseInitialTime(formData.time, true);
+  const initialEnd = parseInitialTime(formData.time, false);
+  
+  const [startHour, setStartHour] = useState(initialStart.hour);
+  const [startMinute, setStartMinute] = useState(initialStart.minute);
+  const [startPeriod, setStartPeriod] = useState(initialStart.period);
+  
+  const [endHour, setEndHour] = useState(initialEnd.hour);
+  const [endMinute, setEndMinute] = useState(initialEnd.minute);
+  const [endPeriod, setEndPeriod] = useState(initialEnd.period);
+
+  // Generate hours options (1-12)
+  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1));
+  // Generate minutes options (00, 15, 30, 45)
+  const minutes = ['00', '15', '30', '45'];
+
+  // Update the full time string when any time component changes
+  useEffect(() => {
+    const startTimeStr = `${startHour}:${startMinute} ${startPeriod}`;
+    const endTimeStr = `${endHour}:${endMinute} ${endPeriod}`;
+    setFormData({ ...formData, time: `${startTimeStr} - ${endTimeStr}` });
+  }, [startHour, startMinute, startPeriod, endHour, endMinute, endPeriod]);
+
+  const renderTimeSelectors = () => {
+    if (isMobile) {
+      // Mobile layout - stacked time selectors
+      return (
+        <>
+          {/* Start Time - Mobile */}
+          <div className="mb-3">
+            <label className="block text-xs text-gray-500 mb-1">开始时间</label>
+            <div className="flex">
+              <select 
+                value={startHour}
+                onChange={(e) => setStartHour(e.target.value)}
+                className="w-1/3 p-2 border rounded-l"
+              >
+                {hours.map(h => (
+                  <option key={`start-hour-${h}`} value={h}>{h}</option>
+                ))}
+              </select>
+              <select
+                value={startMinute}
+                onChange={(e) => setStartMinute(e.target.value)}
+                className="w-1/3 p-2 border-t border-b"
+              >
+                {minutes.map(m => (
+                  <option key={`start-min-${m}`} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={startPeriod}
+                onChange={(e) => setStartPeriod(e.target.value)}
+                className="w-1/3 p-2 border rounded-r"
+              >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* End Time - Mobile */}
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">结束时间</label>
+            <div className="flex">
+              <select 
+                value={endHour}
+                onChange={(e) => setEndHour(e.target.value)}
+                className="w-1/3 p-2 border rounded-l"
+              >
+                {hours.map(h => (
+                  <option key={`end-hour-${h}`} value={h}>{h}</option>
+                ))}
+              </select>
+              <select
+                value={endMinute}
+                onChange={(e) => setEndMinute(e.target.value)}
+                className="w-1/3 p-2 border-t border-b"
+              >
+                {minutes.map(m => (
+                  <option key={`end-min-${m}`} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={endPeriod}
+                onChange={(e) => setEndPeriod(e.target.value)}
+                className="w-1/3 p-2 border rounded-r"
+              >
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+        </>
+      );
+    }
+    
+    // Desktop layout - side by side time selectors
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        {/* Start Time - Desktop */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">开始时间</label>
+          <div className="flex">
+            <select 
+              value={startHour}
+              onChange={(e) => setStartHour(e.target.value)}
+              className="w-1/3 p-2 border rounded-l"
+            >
+              {hours.map(h => (
+                <option key={`start-hour-${h}`} value={h}>{h}</option>
+              ))}
+            </select>
+            <select
+              value={startMinute}
+              onChange={(e) => setStartMinute(e.target.value)}
+              className="w-1/3 p-2 border-t border-b"
+            >
+              {minutes.map(m => (
+                <option key={`start-min-${m}`} value={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={startPeriod}
+              onChange={(e) => setStartPeriod(e.target.value)}
+              className="w-1/3 p-2 border rounded-r"
+            >
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+        </div>
+        
+        {/* End Time - Desktop */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">结束时间</label>
+          <div className="flex">
+            <select 
+              value={endHour}
+              onChange={(e) => setEndHour(e.target.value)}
+              className="w-1/3 p-2 border rounded-l"
+            >
+              {hours.map(h => (
+                <option key={`end-hour-${h}`} value={h}>{h}</option>
+              ))}
+            </select>
+            <select
+              value={endMinute}
+              onChange={(e) => setEndMinute(e.target.value)}
+              className="w-1/3 p-2 border-t border-b"
+            >
+              {minutes.map(m => (
+                <option key={`end-min-${m}`} value={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={endPeriod}
+              onChange={(e) => setEndPeriod(e.target.value)}
+              className="w-1/3 p-2 border rounded-r"
+            >
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div className={`bg-white rounded-lg p-4 sm:p-6 w-full ${isMobile ? 'max-w-sm' : 'max-w-md'}`}>
         <h3 className="text-lg font-bold mb-4">
           {editingClass.index !== undefined ? '编辑课程' : '添加新课程'}
         </h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">时间</label>
-            <input
-              type="text"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-              className="w-full p-2 border rounded"
-              placeholder="9:30 AM - 11:30 AM"
-            />
+            {renderTimeSelectors()}
+            <div className="text-xs text-gray-500 mt-1">
+              时间: {formData.time}
+            </div>
           </div>
+          
+          {/* Class Name */}
           <div>
             <label className="block text-sm font-medium mb-1">课程名称</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full p-2 border rounded"
-              placeholder="基本功"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-2 border rounded"
+                placeholder="基本功"
+                list="class-names"
+              />
+              <datalist id="class-names">
+                {existingClassNames.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            </div>
+            {existingClassNames.length > 0 && (
+              <div className="mt-1">
+                <label className="block text-xs text-gray-500 mb-1">常用课程:</label>
+                <div className="flex flex-wrap gap-1">
+                  {existingClassNames.slice(0, 5).map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, name })}
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        formData.name === name
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+          
+          {/* Location */}
           <div>
             <label className="block text-sm font-medium mb-1">地点</label>
             <select
@@ -64,16 +356,18 @@ const ClassEditForm: React.FC<{
               <option value="Mountain View">Mountain View</option>
             </select>
           </div>
-          <div className="flex justify-end gap-2 pt-4">
+          
+          {/* Action Buttons - Optimized for mobile */}
+          <div className={`${isMobile ? 'grid grid-cols-2' : 'flex justify-end'} gap-2 pt-4`}>
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+              className={`px-4 py-2 text-gray-600 hover:bg-gray-100 rounded ${isMobile ? 'order-2' : ''}`}
             >
               取消
             </button>
             <button
               onClick={() => onSave(formData)}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${isMobile ? 'order-1' : ''}`}
             >
               保存
             </button>
@@ -95,13 +389,24 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   const { isEditMode } = useEdit();
   const [editingClass, setEditingClass] = useState<EditingClass | null>(null);
   const [localSchedule, setLocalSchedule] = useState<DaySchedule>(schedule);
+  const [existingClassNames, setExistingClassNames] = useState<string[]>([]);
 
   useEffect(() => {
     setLocalSchedule(schedule);
+    
+    // Extract unique class names from the schedule
+    if (schedule) {
+      const classNames = Object.values(schedule)
+        .flat()
+        .map(cls => cls.name)
+        .filter((name): name is string => !!name);
+      
+      setExistingClassNames([...new Set(classNames)]);
+    }
   }, [schedule]);
 
   if (!schedule) {
-    return
+    return null;
   }
   
   const filteredSchedule = (day: string): ClassSchedule[] => {
@@ -165,40 +470,50 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     class_: ClassSchedule;
     day: string;
     index: number;
-  }> = ({ class_, day, index }) => (
-    <div
-      className={`relative group ${
-        class_.location === 'San Jose' 
-          ? 'bg-green-50 border border-green-100' 
-          : 'bg-blue-50 border border-blue-100'
-      } p-3 rounded-lg transition-all hover:shadow-md`}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-medium">{class_.time}</span>
-      </div>
-      <div className="text-sm font-medium mb-2">{class_.name}</div>
-      <div className="flex items-center gap-1 text-xs text-gray-600">
-        <span>📍{class_.location}</span>
-      </div>
-      
-      {isEditMode && (
-        <div className="absolute top-2 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow-sm p-1">
-          <button
-            onClick={() => handleEditClass(day, class_, index)}
-            className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-          >
-            <Edit2 size={14} />
-          </button>
-          <button
-            onClick={() => handleDeleteClass(day, index)}
-            className="p-1 text-red-600 hover:bg-red-50 rounded"
-          >
-            <Trash2 size={14} />
-          </button>
+  }> = ({ class_, day, index }) => {
+    const duration = calculateDuration(class_.time);
+    
+    return (
+      <div
+        className={`relative group ${
+          class_.location === 'San Jose' 
+            ? 'bg-green-50 border border-green-100' 
+            : 'bg-blue-50 border border-blue-100'
+        } p-3 rounded-lg transition-all hover:shadow-md`}
+      >
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-sm font-medium">{class_.time}</span>
+          {duration && (
+            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full flex items-center gap-1">
+              <Clock size={12} />
+              {duration}
+            </span>
+          )}
         </div>
-      )}
-    </div>
-  );
+        <div className="text-sm font-medium mb-2">{class_.name}</div>
+        <div className="flex items-center gap-1 text-xs text-gray-600">
+          <span>📍{class_.location}</span>
+        </div>
+        
+        {isEditMode && (
+          <div className="absolute top-2 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow-sm p-1">
+            <button
+              onClick={() => handleEditClass(day, class_, index)}
+              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+            >
+              <Edit2 size={14} />
+            </button>
+            <button
+              onClick={() => handleDeleteClass(day, index)}
+              className="p-1 text-red-600 hover:bg-red-50 rounded"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const CalendarView: React.FC = () => (
     <div className="bg-white rounded-lg shadow">
@@ -269,6 +584,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
           editingClass={editingClass}
           onSave={handleSaveClass}
           onCancel={() => setEditingClass(null)}
+          existingClassNames={existingClassNames}
         />
       )}
     </>

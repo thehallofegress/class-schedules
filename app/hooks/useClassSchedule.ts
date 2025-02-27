@@ -5,7 +5,7 @@ import { supabase } from "@/app/api/supabaseClient";
 
 export const useClassSchedule = () => {
     const [scheduleData, setScheduleData] = useState<ScheduleData>({ id: "", schedule: {}, lastUpdated: undefined });
-    const [contactData, setContactData] = useState<ContactData>({ id: "", contact: { zoomInfo: { title: "网课信息", zoomId: "", zoomLink: "" }, teacherInfo: { title: "老师联系方式", name: "", wechatId: "" }}, lastUpdated: undefined});
+    const [contactData, setContactData] = useState<ContactData>({ id: "", contact: { zoomInfo: { title: "网课信息", zoomId: "", zoomLink: "" }, teacherInfo: { title: "联系方式", name: "", wechatId: "" }}, lastUpdated: undefined});
     const [pricingData, setPricingData] = useState<PricingData>({id: "", pricing: { hourlyRates: [], specialRates: { dropIn: 0, online: 0, trial: 0 }, paymentInfo: { registration: { title: "新生报名", fee: "", note: "" }, paymentCycle: { title: "付款周期", offline: "", online: "" }, paymentMethods: { title: "支付方式", methods: [] } }}, lastUpdated: undefined });
     const [locationData, setLocationData] = useState<LocationData>({ id: "", locations: [], lastUpdated: undefined });
 

@@ -6,7 +6,6 @@ import LocationComponent from './LocationComponent';
 import PasswordModal from './PasswordModal';
 import { useEdit } from './EditContext';
 import { Settings } from 'lucide-react';
-import ContactComponent from './ContactComponent';
 import PricingComponent from './PricingComponent';
 import { ClassType, ContactInfo, DaySchedule, LocationInfo, PricingInfo, ScheduleData, TABLES } from './types';
 import { useClassSchedule } from '@/app/hooks/useClassSchedule';
@@ -15,7 +14,8 @@ import { parseTime } from '@/app/utils/handleTime';
 import AnnouncementsContainer from './AnnouncementsContainer';
 import AnnouncementsManagement from './AnnouncementsManagement';
 import TabButton, { TabEnum } from './TabButton';
-
+import FloatingBubbles from './FloatingBubbles';
+import ContactComponent from './ContactComponent';
 
 const extractClassTypes = (schedule?: DaySchedule) => {
   if (!schedule) return [];
@@ -55,6 +55,7 @@ const ClassScheduleComponent = () => {
   const [selectedClassType, setSelectedClassType] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.Schedule);
+  const [showBubbles, setShowBubbles] = useState<boolean>(false);
 
   const [classTypes, setClassTypes] = useState<ClassType[]>([]);
 
@@ -71,6 +72,10 @@ const ClassScheduleComponent = () => {
     if (activeTab === TabEnum.Announcement) {
       setActiveTab(TabEnum.Schedule);
     }
+  };
+
+  const toggleBubbles = () => {
+    setShowBubbles(!showBubbles);
   };
 
   const formattedLastUpdated = scheduleData?.lastUpdated
@@ -196,14 +201,24 @@ const ClassScheduleComponent = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">成人班2025年课程表</h1>
-        <p className="text-gray-600">授课老师: 王晓明</p>
-        <p className="text-gray-500 text-sm"> {formattedLastUpdated} 更新版</p>
+      {showBubbles && <FloatingBubbles />}
+      <header className="text-center mb-8 relative">
+        <h2 className="text-3xl font-bold mb-2">SVDA成人班课程表</h2>
+        <p className="text-gray-900"> 🕺授课老师: 王晓明🤸 </p>
+        
+        {/* Floating bubble toggle button - positioned in bottom right corner */}
+        <button
+          onClick={toggleBubbles}
+          className="fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all"
+          aria-label={showBubbles ? "隐藏背景气泡" : "显示背景气泡"}
+        >
+          {showBubbles ? "🫧" : "✨"}
+        </button>
+        
         {!isEditMode && (
           <button
             onClick={() => setIsPasswordModalOpen(true)}
-            className="absolute top-0 right-0 p-2 text-gray-600 hover:text-blue-600"
+            className="absolute top-0 right-0 m-[-10px] text-gray-600 hover:text-blue-600"
           >
             <Settings size={20} />
           </button>
@@ -282,6 +297,10 @@ const ClassScheduleComponent = () => {
       {isEditMode && activeTab === TabEnum.Announcement && (
         <AnnouncementsManagement />
       )}
+
+      <footer className="mt-10 text-center text-gray-500 text-sm py-4">
+        <p>© {formattedLastUpdated} 更新版</p>
+      </footer>
 
       <PasswordModal
         isOpen={isPasswordModalOpen}

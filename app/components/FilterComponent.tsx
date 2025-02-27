@@ -16,7 +16,7 @@ const FilterComponent: React.FC<FilterProps> = ({
   setSelectedLocation,
   classTypes,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const locations = ['all', 'San Jose', 'Mountain View'];
 
@@ -37,7 +37,7 @@ const FilterComponent: React.FC<FilterProps> = ({
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-medium">🔍 筛选课程</h2>
             {getActiveFiltersCount() > 0 && (
@@ -68,7 +68,7 @@ const FilterComponent: React.FC<FilterProps> = ({
 
         {isExpanded && (<div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2 text-left">课程类型</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2 mt-2 text-left">课程类型</h3>
             <div className="flex flex-wrap gap-2">
               {classTypes.map((type) => (
                 <button

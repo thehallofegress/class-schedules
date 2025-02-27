@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PencilIcon, CheckIcon, XIcon } from 'lucide-react';
 import { useEdit } from './EditContext';
 import { ContactInfo } from './types';
+import Image from "next/image";
 
 interface ContactComponentProps {
   initialData: ContactInfo;
@@ -28,7 +29,7 @@ const ContactComponent: React.FC<ContactComponentProps> = ({ initialData, onSave
     return (
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">联系方式</h2>
+          <h2 className="text-xl font-bold">💬 联系方式</h2>
           <div className="flex gap-2">
             <button
               onClick={() => setIsEditing(false)}
@@ -102,7 +103,7 @@ const ContactComponent: React.FC<ContactComponentProps> = ({ initialData, onSave
 
   return (
     <div className="bg-white p-6 rounded-lg shadow relative">
-      <h2 className="text-xl font-bold mb-4">联系方式</h2>
+      <h2 className="text-xl font-bold mb-4">💬 联系方式</h2>
       {isEditMode && (
         <button
           onClick={() => setIsEditing(true)}
@@ -112,20 +113,32 @@ const ContactComponent: React.FC<ContactComponentProps> = ({ initialData, onSave
         </button>
       )}
       <div className="space-y-4">
-        <div className="p-4 bg-blue-50 rounded">
-          <h3 className="font-medium mb-2">{editData.zoomInfo.title}</h3>
-          <p>
-            <strong>Zoom 号:</strong>
-            <a href={editData.zoomInfo.zoomLink} className="text-blue-600 underline">
-              {editData.zoomInfo.zoomId}
-            </a>
-          </p>
-        </div>
+        {/* WeChat Info */}
         <div className="p-4 bg-green-50 rounded">
           <h3 className="font-medium mb-2">{editData.teacherInfo.title}</h3>
-          <p>{editData.teacherInfo.name} WeChat ID: {editData.teacherInfo.wechatId}</p>
+          {/* Image and Text on the Same Line */}
+          <div className="flex items-center gap-2">
+            <Image src="/wechat-logo.svg" alt="WeChat Logo" width={18} height={18} />
+            <p><strong>微信号:</strong>{editData.teacherInfo.wechatId}</p>
+          </div>
+        </div>
+        {/* Zoom Info */}
+        <div className="p-4 bg-blue-50 rounded">
+          <h3 className="font-medium mb-2">{editData.zoomInfo.title}</h3>
+
+          {/* Image and Text on the Same Line */}
+          <div className="flex items-center gap-2">
+            <Image src="/zoom-logo.svg" alt="Zoom Logo" width={18} height={18} />
+            <p>
+              <strong>Zoom 号:</strong>
+              <a href={editData.zoomInfo.zoomLink} className="text-blue-600 underline">
+                {editData.zoomInfo.zoomId}
+              </a>
+            </p>
+          </div>
         </div>
       </div>
+
     </div>
   );
 };
