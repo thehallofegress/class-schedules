@@ -199,7 +199,10 @@ const ClassScheduleComponent = () => {
     );
   };
 
-  const uniqueCities = Array.from(new Set(locationData.locations.map(location => location.city)));
+  const uniqueCities = locationData?.locations
+  ? Array.from(new Set(locationData.locations.map(location => location.city)))
+  : ["San jose", "Sunnyvale"];
+
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
       {showBubbles && <FloatingBubbles />}
@@ -253,6 +256,7 @@ const ClassScheduleComponent = () => {
             selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
             classTypes={classTypes}
+            locationCities={uniqueCities}
           />
           {/* Schedule Grid */}
           <ScheduleGrid
