@@ -85,7 +85,6 @@ const ClassEditForm: React.FC<{
   existingClassNames: string[];
   locationCities: string[];
 }> = ({ editingClass, onSave, onCancel, existingClassNames, locationCities}) => {
-  console.log("locationCities: ", locationCities)
   const isMobile = useMediaQuery('(max-width: 640px)');
   const [formData, setFormData] = useState(editingClass);
   // Parse initial time values if they exist
@@ -363,6 +362,18 @@ const ClassEditForm: React.FC<{
             </select>
           </div>
           
+          {/* Notes field (optional) */}
+          <div>
+            <label className="block text-sm font-medium mb-1">备注 (Note)</label>
+            <textarea
+              value={formData.note ?? ''}
+              onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+              className="w-full p-2 border rounded resize-none"
+              rows={3}
+              placeholder="例如：这周临时换教室"
+            />
+          </div>
+
           {/* Action Buttons - Optimized for mobile */}
           <div className={`${isMobile ? 'grid grid-cols-2' : 'flex justify-end'} gap-2 pt-4`}>
             <button
@@ -460,6 +471,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       time: classData.time,
       name: classData.name,
       location: classData.location,
+      note: classData.note,
     };
   
     if (typeof classData.index === "number") {
@@ -480,7 +492,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   }> = ({ class_, day, index }) => {
     const duration = calculateDuration(class_.time);
     const isDesktop = useMediaQuery('(min-width: 768px)');
-    
+    console.log("class ", class_)
     return (
       <div
         className={`relative group ${
@@ -505,6 +517,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
             <div className="flex items-center gap-1 text-xs text-gray-600">
               <span>📍{class_.location}</span>
             </div>
+            {class_.note && (
+              <div className="mt-1 text-xs bg-yellow-100 text-yellow-800 rounded px-2 py-1">🔔 {class_.note}</div>
+            )}
           </>
         ) : (
           // Mobile layout with duration as a pill next to time
@@ -522,6 +537,9 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
             <div className="flex items-center gap-1 text-xs text-gray-600">
               <span>📍{class_.location}</span>
             </div>
+            {class_.note && (
+              <div className="mt-1 text-xs bg-yellow-100 text-yellow-800 rounded px-2 py-1">🔔 {class_.note}</div>
+            )}
           </>
         )}
         

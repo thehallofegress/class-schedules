@@ -2,6 +2,7 @@ export interface ClassSchedule {
   time: string;
   name: string;
   location: string;
+  note?: string;
 }
 
 export interface DaySchedule {
