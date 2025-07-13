@@ -199,6 +199,7 @@ const ClassScheduleComponent = () => {
     );
   };
 
+  const uniqueCities = Array.from(new Set(locationData.locations.map(location => location.city)));
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
       {showBubbles && <FloatingBubbles />}
@@ -260,13 +261,14 @@ const ClassScheduleComponent = () => {
             selectedClassType={selectedClassType}
             selectedLocation={selectedLocation}
             onSaveSchedule={saveScheduleData}
+            locationCities={uniqueCities}
           />
           <div className="mt-8 bg-yellow-50 p-4 rounded-lg">
             <h2 className="font-bold mb-2 flex items-center gap-2">
               💬 报课注意事项
             </h2>
             <ol className="list-decimal pl-5 space-y-1 text-left">
-              <li>周二上午、周四、周日基本功课适合包含零基础在内的所有同学，周五、周六基本功课更适合有一定基础的同学</li>
+              <li>基本功（初级）课适合包含零基础在内的所有同学，基本功（中高级）课更适合有一定基础的同学</li>
               <li>剑舞课、水袖课、身韵课 不能随时加入新生</li>
             </ol>
           </div>

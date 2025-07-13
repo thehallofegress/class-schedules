@@ -11,6 +11,7 @@ interface ScheduleGridProps {
   selectedClassType: string;
   selectedLocation: string;
   onSaveSchedule: (updatedSchedule: DaySchedule) => void;
+  locationCities: string[];
 }
 
 interface EditingClass extends ClassSchedule {
@@ -82,7 +83,9 @@ const ClassEditForm: React.FC<{
   onSave: (classData: EditingClass) => void;
   onCancel: () => void;
   existingClassNames: string[];
-}> = ({ editingClass, onSave, onCancel, existingClassNames }) => {
+  locationCities: string[];
+}> = ({ editingClass, onSave, onCancel, existingClassNames, locationCities}) => {
+  console.log("locationCities: ", locationCities)
   const isMobile = useMediaQuery('(max-width: 640px)');
   const [formData, setFormData] = useState(editingClass);
   // Parse initial time values if they exist
@@ -352,8 +355,11 @@ const ClassEditForm: React.FC<{
               className="w-full p-2 border rounded"
             >
               <option value="">选择地点</option>
-              <option value="San Jose">San Jose</option>
-              <option value="Mountain View">Mountain View</option>
+              {locationCities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
             </select>
           </div>
           
@@ -384,6 +390,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
   selectedClassType,
   selectedLocation,
   onSaveSchedule,
+  locationCities,
 }) => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const { isEditMode } = useEdit();
@@ -608,6 +615,7 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
           onSave={handleSaveClass}
           onCancel={() => setEditingClass(null)}
           existingClassNames={existingClassNames}
+          locationCities={locationCities}
         />
       )}
     </>
