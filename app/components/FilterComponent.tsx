@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 interface FilterProps {
   selectedClassType: string;
@@ -20,8 +20,7 @@ const FilterComponent: React.FC<FilterProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  console.log("locationCities ", locationCities)
-  const locations = locationCities ? ["all", ...locationCities] : ["all", "Sunnyvale", "San Jose"];
+  const locations = ["all", ...locationCities];  // By default will be Sunnyvale and San Jose
 
   const clearFilters = () => {
     setSelectedClassType('all');
