@@ -52,6 +52,8 @@ const MapWithArea: React.FC<MapWithAreaProps> = ({
   pins,
   areaPolygon,
 }) => {
+  const [lat, lng] = center
+  const shiftedCenter: [number,number] = [lat, lng - 0.002]
   const handleCopy = async (position: [number, number]) => {
     const coordText = `${position[0].toFixed(6)}, ${position[1].toFixed(6)}`;
     try {
@@ -67,7 +69,7 @@ const MapWithArea: React.FC<MapWithAreaProps> = ({
       {/* Toaster provides non-blocking notifications */}
       <Toaster position="top-right" />
 
-      <MapContainer center={center} zoom={zoom} className="w-full h-64 sm:h-80 md:h-96">
+      <MapContainer center={shiftedCenter} zoom={zoom} className="w-full h-[30rem] sm:h-[75vh] md:h-[85vh]">
         {/* Base map */}
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

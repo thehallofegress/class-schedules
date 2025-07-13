@@ -14,7 +14,6 @@ import { parseTime } from '@/app/utils/handleTime';
 import AnnouncementsContainer from './AnnouncementsContainer';
 import AnnouncementsManagement from './AnnouncementsManagement';
 import TabButton, { TabEnum } from './TabButton';
-import FloatingBubbles from './FloatingBubbles';
 import ContactComponent from './ContactComponent';
 
 const extractClassTypes = (schedule?: DaySchedule) => {
@@ -55,7 +54,6 @@ const ClassScheduleComponent = () => {
   const [selectedClassType, setSelectedClassType] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<TabEnum>(TabEnum.Schedule);
-  const [showBubbles, setShowBubbles] = useState<boolean>(false);
 
   const [classTypes, setClassTypes] = useState<ClassType[]>([]);
 
@@ -72,10 +70,6 @@ const ClassScheduleComponent = () => {
     if (activeTab === TabEnum.Announcement) {
       setActiveTab(TabEnum.Schedule);
     }
-  };
-
-  const toggleBubbles = () => {
-    setShowBubbles(!showBubbles);
   };
 
   const formattedLastUpdated = scheduleData?.lastUpdated
@@ -205,19 +199,9 @@ const ClassScheduleComponent = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50">
-      {showBubbles && <FloatingBubbles />}
       <header className="text-center mb-8 relative">
         <h2 className="text-3xl font-bold mb-2">SVDA成人班课程表</h2>
         <p className="text-gray-900"> 🕺授课老师: 王晓明🤸 </p>
-        
-        {/* Floating bubble toggle button - positioned in bottom right corner */}
-        <button
-          onClick={toggleBubbles}
-          className="fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all"
-          aria-label={showBubbles ? "隐藏背景气泡" : "显示背景气泡"}
-        >
-          {showBubbles ? "🫧" : "✨"}
-        </button>
         
         {!isEditMode && (
           <button
