@@ -4,6 +4,7 @@ import EditableSection from "./EditableSection";
 import { LocationInfo} from "./types";
 import { Trash2 } from "lucide-react";
 import { useEdit } from "./EditContext";
+import { ParkingMap } from "./ParkingMap";
 
 interface LocationComponentProps {
   initialData: LocationInfo[];
@@ -47,6 +48,7 @@ const LocationComponent: React.FC<LocationComponentProps> = ({ initialData, onSa
   };
 
   return (
+    <>
     <EditableSection title="📍 Locations" onSave={handleSave} editForm={(isEditing) => (
       <div className="space-y-4">
         {locations.map((location, index) => (
@@ -105,6 +107,9 @@ const LocationComponent: React.FC<LocationComponentProps> = ({ initialData, onSa
         ))}
       </div>
     </EditableSection>
+
+    <ParkingMap />
+    </>
   );
 };
 
