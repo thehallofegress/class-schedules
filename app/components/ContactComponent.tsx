@@ -1,4 +1,3 @@
-// ContactComponent.tsx
 "use client";
 import React, { useState } from 'react';
 import { PencilIcon, CheckIcon, XIcon } from 'lucide-react';

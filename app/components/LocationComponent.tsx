@@ -4,7 +4,12 @@ import EditableSection from "./EditableSection";
 import { LocationInfo} from "./types";
 import { Trash2 } from "lucide-react";
 import { useEdit } from "./EditContext";
-import { ParkingMap } from "./ParkingMap";
+import dynamic from 'next/dynamic'; 
+
+const DynamicParkingMap= dynamic(
+  () => import('./ParkingMap'),
+  { ssr: false }
+);
 
 interface LocationComponentProps {
   initialData: LocationInfo[];
@@ -108,7 +113,7 @@ const LocationComponent: React.FC<LocationComponentProps> = ({ initialData, onSa
       </div>
     </EditableSection>
 
-    <ParkingMap />
+    <DynamicParkingMap />
     </>
   );
 };
