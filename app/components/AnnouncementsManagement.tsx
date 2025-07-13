@@ -123,7 +123,7 @@ const AnnouncementsManagement: React.FC = () => {
                 </span>
             </div>
 
-            <p className="text-sm text-gray-900 mb-3">{announcement.message}</p>
+            <p className="text-sm text-gray-900 mb-3 whitespace-pre-wrap">{announcement.message}</p>
 
             <div className="flex flex-col space-y-1 text-xs text-gray-500 mb-3">
                 <div className="flex items-center">
@@ -243,7 +243,7 @@ const AnnouncementsManagement: React.FC = () => {
                                             {announcements.map((announcement) => (
                                                 <tr key={announcement.id}>
                                                     <td className="px-4 py-4 whitespace-normal">
-                                                        <div className="text-sm text-gray-900 max-w-md break-words">{announcement.message}</div>
+                                                        <div className="text-sm text-gray-900 max-w-md break-words whitespace-pre-wrap">{announcement.message}</div>
                                                     </td>
                                                     <td className="px-4 py-4 whitespace-nowrap">
                                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(announcement.type)}`}>

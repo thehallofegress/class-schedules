@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
 import { Announcement } from './types';
@@ -29,9 +28,12 @@ const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ announcement, onClose
   };
 
   return (
-    <div className={`px-4 py-3 mb-4 rounded-lg border-l-4 ${bgColorMap[announcement.type]}`}>
+    <div
+      className={`px-4 py-3 mb-4 rounded-lg border-l-4 ${bgColorMap[announcement.type]}`}
+    >
       <div className="flex justify-between items-start">
-        <div className={`font-medium ${textColorMap[announcement.type]}`}>
+        {/* Preserve whitespace and line breaks in announcement message */}
+        <div className={`flex-1 font-medium ${textColorMap[announcement.type]} whitespace-pre-wrap`}>  
           {announcement.message}
         </div>
         <button
