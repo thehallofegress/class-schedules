@@ -460,6 +460,23 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
     onSaveSchedule(newSchedule);
   };
 
+  const parseTimeToMinutes = (timeStr: string): number => {
+    // Extract the start time before "-"
+    const [startTime] = timeStr.split('-').map(part => part.trim());
+
+    const match = startTime.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+    if (!match) return 0;
+
+    let hour = parseInt(match[1], 10);
+    const minute = parseInt(match[2], 10);
+    const meridian = match[3].toUpperCase();
+
+    if (meridian === 'PM' && hour !== 12) hour += 12;
+    if (meridian === 'AM' && hour === 12) hour = 0;
+
+    return hour * 60 + minute;
+  };
+
   const handleSaveClass = (classData: EditingClass) => {
     const newSchedule = { ...localSchedule };
   
@@ -480,6 +497,13 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
       newSchedule[classData.day].push(updatedClass);
     }
   
+    // Sort each day's class list by time
+    Object.keys(newSchedule).forEach(day => {
+      newSchedule[day].sort((a, b) => {
+        return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
+      });
+    });
+
     setLocalSchedule(newSchedule);
     onSaveSchedule(newSchedule);
     setEditingClass(null);
@@ -544,18 +568,20 @@ const ScheduleGrid: React.FC<ScheduleGridProps> = ({
         )}
         
         {isEditMode && (
-          <div className="absolute top-2 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow-sm p-1">
+          <div className="absolute top-2 right-2 hidden group-hover:flex gap-4 bg-white rounded-lg shadow-sm p-2">
             <button
               onClick={() => handleEditClass(day, class_, index)}
-              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+              className="p-3 text-blue-600 hover:bg-blue-50 rounded-full transition"
+              aria-label="编辑课程"
             >
-              <Edit2 size={14} />
+              <Edit2 size={18} />
             </button>
             <button
               onClick={() => handleDeleteClass(day, index)}
-              className="p-1 text-red-600 hover:bg-red-50 rounded"
+              className="p-3 text-red-600 hover:bg-red-50 rounded-full transition"
+              aria-label="删除课程"
             >
-              <Trash2 size={14} />
+              <Trash2 size={18} />
             </button>
           </div>
         )}
