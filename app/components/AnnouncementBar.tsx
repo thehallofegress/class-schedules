@@ -1,15 +1,14 @@
 "use client";
 
 import React from 'react';
-import { X } from 'lucide-react';
 import { Announcement } from './types';
 
 interface AnnouncementBarProps {
   announcement: Announcement;
-  onClose: (id: string) => void;
+  // onClose: (id: string) => void;
 }
 
-const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ announcement, onClose }) => {
+const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ announcement }) => {
   const bgColorMap = {
     info: 'bg-blue-100 border-blue-500',
     success: 'bg-green-100 border-green-500',
@@ -24,10 +23,10 @@ const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ announcement, onClose
     error: 'text-red-800'
   };
 
-  const formatExpiryDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
+  // const formatExpiryDate = (dateString: string) => {
+  //   const date = new Date(dateString);
+  //   return date.toLocaleDateString();
+  // };
 
   return (
     <div
