@@ -38,16 +38,16 @@ const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ announcement, onClose
         <div className={`flex-1 font-medium ${textColorMap[announcement.type]} whitespace-pre-wrap`}>  
           {announcement.message}
         </div>
-        <button
+        {/* <button
           onClick={() => onClose(announcement.id)}
           className={`${textColorMap[announcement.type]} hover:bg-opacity-20 hover:bg-gray-200 p-1 rounded-full`}
         >
           <X size={16} />
-        </button>
+        </button> */}
       </div>
-      <div className="text-xs text-gray-500 mt-1">
+      {/* <div className="text-xs text-gray-500 mt-1">
         有效期至: {formatExpiryDate(announcement.expires_at)}
-      </div>
+      </div> */}
     </div>
   );
 };

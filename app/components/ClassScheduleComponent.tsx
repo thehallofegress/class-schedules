@@ -251,7 +251,18 @@ const ClassScheduleComponent = () => {
             onSaveSchedule={saveScheduleData}
             locationCities={uniqueCities}
           />
-          <div className="mt-8 bg-yellow-50 p-4 rounded-lg">
+          <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+            <h2 className="font-bold mb-2 flex items-center gap-2">
+              👯 补课规则指南 💪
+            </h2>
+            <ul className="list-disc pl-5 space-y-1 text-left">
+            <li>补课必须在 <span className="bg-blue-200 px-1 rounded font-semibold">自报名之日起四个月内</span> 完成。</li>
+            <li>补课需在 <span className="bg-blue-200 px-1 rounded font-semibold">已报课的前提下</span> 进行，新学期 <span className="bg-blue-200 px-1 rounded font-semibold">不可仅补课而不报课</span>。</li>
+            <li>如在规定时间内未完成补课，学校将 <span className="bg-blue-200 px-1 rounded font-semibold">不予退款</span>，且课时费用 <span className="bg-blue-200 px-1 rounded font-semibold">不得用于未来抵扣</span>。</li>
+            <li>若有疑问，请及时向老师咨询🫶。</li>
+          </ul>
+          </div>
+          <div className="mt-4 bg-yellow-50 p-4 rounded-lg">
             <h2 className="font-bold mb-2 flex items-center gap-2">
               💬 报课注意事项
             </h2>
